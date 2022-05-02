@@ -18,6 +18,19 @@ The store should have four parts
 4.  update the state
 
 
+## What We're Going to Build
+Now that we have an index.html file and all of the JavaScript code has been transferred over to script tags, let's start adding in a User Interface. Since our project has two pieces of state, we'll need two areas:
+
+1. Todo list area
+2. Goals area
+
+
+
+
+
+
+
+
 # Comments from knowledge process
 ```
 /** Simple State Management
