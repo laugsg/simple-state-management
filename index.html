@@ -114,14 +114,10 @@
         }
       }
 
-      function app(state = {}, action) {
-        return {
-          todos: todos(state.todos, action),
-          goals: goals(state.goals, action),
-        };
-      }
-
-      const store = Redux.createStore(app);
+      const store = Redux.createStore(Redux.combineReducers({
+        todos,
+        goals
+      }));
 
       // 3. listen to changes on the state
       store.subscribe(() => {
@@ -136,48 +132,6 @@
         goals.forEach(addGoalToDOM);
         todos.forEach(addTodoToDOM);
       });
-
-      // TODOS
-      //   store.dispatch(
-      //     ADD_TODO_ACTION({
-      //       todo: {
-      //         id: 0,
-      //         name: "How-To Manage State Secure and Predictively",
-      //       },
-      //     })
-      //   );
-      //   store.dispatch(
-      //     ADD_TODO_ACTION({
-      //       todo: {
-      //         id: 1,
-      //         name: "Read book",
-      //         complete: true,
-      //       },
-      //     })
-      //   );
-      //   store.dispatch(TOGGLE_TODO_ACTION(1));
-      //   store.dispatch(REMOVE_TODO_ACTION(0));
-
-      //   // GOALS
-      //   store.dispatch(
-      //     ADD_GOAL_ACTION({
-      //       goal: {
-      //         id: 0,
-      //         name: "How-To Manage State Secure and Predictively",
-      //       },
-      //     })
-      //   );
-      //   store.dispatch(
-      //     ADD_GOAL_ACTION({
-      //       goal: {
-      //         id: 1,
-      //         name: "Read book",
-      //         complete: true,
-      //       },
-      //     })
-      //   );
-      //   store.dispatch(TOGGLE_GOAL_ACTION(1));
-      //   store.dispatch(REMOVE_GOAL_ACTION(0));
 
       function addTodo() {
         const input = document.getElementById("todo");
