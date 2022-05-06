@@ -150,10 +150,19 @@
         return next(action)
       }
 
+      const logger = (store) => (next) => (action) => {
+        console.group(action.type)
+        console.log("The action:", action)
+        const result = next(action)
+        console.log("The new state:", store.getState())
+        console.groupEnd()
+        return result
+      }
+
       const store = Redux.createStore(Redux.combineReducers({
         todos,
         goals
-      }), Redux.applyMiddleware(checker));
+      }), Redux.applyMiddleware(checker, logger));
 
       // 3. listen to changes on the state
       store.subscribe(() => {
@@ -175,7 +184,7 @@
         const name = input.value;
         input.value = "";
 
-        checkAndDispatch(store,
+        store.dispatch(
           ADD_TODO_ACTION({
             name,
             complete: false,
@@ -189,7 +198,7 @@
         const name = input.value;
         input.value = "";
 
-        checkAndDispatch(store,
+        store.dispatch(
           ADD_GOAL_ACTION({
             name,
             id: generateId(),
