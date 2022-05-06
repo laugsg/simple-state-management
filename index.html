@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Udacity Todos Goals</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/3.7.2/redux.min.js"></script>
+    <script src="https://unpkg.com/react@16.3.0-alpha.1/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@16.3.0-alpha.1/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
   </head>
   <body>
     <div>
@@ -20,6 +23,10 @@
       <button id="goalBtn">Add Todo</button>
       <ul id="goals"></ul>
     </div>
+
+    <!-- React Code -->
+    <hr />
+    <div id="app"></div>
 
     <script type="application/javascript">
       /** Generate Unique IDs
@@ -133,36 +140,39 @@
       // }
 
       const checker = (store) => (next) => (action) => {
-        if(
+        if (
           action.type === ADD_TODO &&
           action.todo.name.toLowerCase().includes("bitcoin")
         ) {
-          return alert("Nope. That's a bad idea.")
+          return alert("Nope. That's a bad idea.");
         }
 
-        if(
+        if (
           action.type === ADD_GOAL &&
           action.goal.name.toLowerCase().includes("bitcoin")
         ) {
-          return alert("Nope. That's a bad idea.")
+          return alert("Nope. That's a bad idea.");
         }
 
-        return next(action)
-      }
+        return next(action);
+      };
 
       const logger = (store) => (next) => (action) => {
-        console.group(action.type)
-        console.log("The action:", action)
-        const result = next(action)
-        console.log("The new state:", store.getState())
-        console.groupEnd()
-        return result
-      }
+        console.group(action.type);
+        console.log("The action:", action);
+        const result = next(action);
+        console.log("The new state:", store.getState());
+        console.groupEnd();
+        return result;
+      };
 
-      const store = Redux.createStore(Redux.combineReducers({
-        todos,
-        goals
-      }), Redux.applyMiddleware(checker, logger));
+      const store = Redux.createStore(
+        Redux.combineReducers({
+          todos,
+          goals,
+        }),
+        Redux.applyMiddleware(checker, logger)
+      );
 
       // 3. listen to changes on the state
       store.subscribe(() => {
@@ -244,10 +254,55 @@
         });
 
         node.appendChild(text);
-        node.appendChild(removeBtn)
+        node.appendChild(removeBtn);
 
         document.getElementById("goals").appendChild(node);
       }
+    </script>
+
+    <script type="text/babel">
+      function List(props) {
+        return (
+          <ul>
+            <li>LIST</li>
+          </ul>
+        );
+      }
+
+      class Todos extends React.Component {
+        render() {
+          return (
+            <div>
+              TODOS
+              <List />
+            </div>
+          );
+        }
+      }
+
+      class Goals extends React.Component {
+        render() {
+          return (
+            <div>
+              GOALS
+              <List />
+            </div>
+          );
+        }
+      }
+
+      class App extends React.Component {
+        render() {
+          return (
+            <div>
+              <Todos />
+              <Goals />
+            </div>
+          );
+        }
+      }
+
+      ReactDOM.render(<App />, document.getElementById("app"));
     </script>
   </body>
 </html>
