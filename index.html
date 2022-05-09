@@ -36,7 +36,7 @@
       const ADD_GOAL = "ADD_GOAL";
       const REMOVE_GOAL = "REMOVE_GOAL";
       const TOGGLE_GOAL = "TOGGLE_GOAL";
-      const RECEIVE_DATA = "RECEIVE_DATA"
+      const RECEIVE_DATA = "RECEIVE_DATA";
 
       function ADD_TODO_ACTION(todo) {
         return {
@@ -74,12 +74,12 @@
           id,
         };
       }
-      function RECEIVE_DATA_ACTION(todos, goals){
+      function RECEIVE_DATA_ACTION(todos, goals) {
         return {
           type: RECEIVE_DATA,
           todos,
-          goals
-        }
+          goals,
+        };
       }
 
       // 4. update the state
@@ -96,8 +96,8 @@
                 : Object.assign({}, todo, { complete: !todo.complete })
             );
           case RECEIVE_DATA:
-            return action.todos
-            default:
+            return action.todos;
+          default:
             return state;
         }
       }
@@ -114,7 +114,15 @@
                 : Object.assign({}, goal, { complete: !goal.complete })
             );
           case RECEIVE_DATA:
-            return action.goals
+            return action.goals;
+          default:
+            return state;
+        }
+      }
+      function loading(state = true, action) {
+        switch (action.type) {
+          case RECEIVE_DATA:
+            return false;
           default:
             return state;
         }
@@ -151,6 +159,7 @@
         Redux.combineReducers({
           todos,
           goals,
+          loading,
         }),
         Redux.applyMiddleware(checker, logger)
       );
@@ -269,18 +278,23 @@
       class App extends React.Component {
         componentDidMount() {
           const { store } = this.props;
-          store.subscribe(() => this.forceUpdate()); // this is an "Anti-pattern" i reality, used just for learning purposes.
+          store.subscribe(() => this.forceUpdate()); // this is an "Anti-pattern" in reality, used just for learning purposes.
 
           Promise.all([API.fetchTodos(), API.fetchGoals()]).then(
             ([todos, goals]) => {
-              store.dispatch(RECEIVE_DATA_ACTION(todos, goals))
+              store.dispatch(RECEIVE_DATA_ACTION(todos, goals));
             }
           );
         }
 
         render() {
           const { store } = this.props;
-          const { todos, goals } = store.getState();
+          const { todos, goals, loading } = store.getState();
+
+          if (loading === true) {
+            return <h3>Loading...</h3>
+          }
+
           return (
             <div>
               <Todos todos={todos} store={this.props.store} />
