@@ -209,6 +209,11 @@
 
         removeItem = (todo) => {
           this.props.store.dispatch(REMOVE_TODO_ACTION(todo.id));
+          return API.deleteTodo(todo.id)
+            .catch(() => {
+              this.props.store.dispatch(ADD_TODO_ACTION(todo));
+              alert('An error occurred. Try again.')
+            })
         };
 
         toggelItem = (id) => {
@@ -254,6 +259,11 @@
 
         removeItem = (goal) => {
           this.props.store.dispatch(REMOVE_GOAL_ACTION(goal.id));
+          return API.deleteTodo(goal.id)
+            .catch(() => {
+              this.props.store.dispatch(ADD_GOAL_ACTION(goal))
+              alert('An error occurred. Try again.')
+            })
         };
 
         render() {
