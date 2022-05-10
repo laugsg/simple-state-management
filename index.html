@@ -82,6 +82,16 @@
         };
       }
 
+      function handleDeleteTodo(todo) {
+        return (dispatch) => {
+          dispatch(REMOVE_TODO_ACTION(todo.id));
+          return API.deleteTodo(todo.id).catch(() => {
+            dispatch(ADD_TODO_ACTION(todo));
+            alert("An error occurred. Try again.");
+          });
+        };
+      }
+
       // 4. update the state
       function todos(state = [], action) {
         switch (action.type) {
@@ -155,13 +165,20 @@
         return result;
       };
 
+      const thunk = (store) => (next) => (action) => {
+        if ( typeof action === "function" ){
+          return action(store.dispatch)
+        }
+        return next(action)
+      }
+
       const store = Redux.createStore(
         Redux.combineReducers({
           todos,
           goals,
           loading,
         }),
-        Redux.applyMiddleware(checker, logger)
+        Redux.applyMiddleware(thunk, checker, logger)
       );
 
       // 3. listen to changes on the state
@@ -208,12 +225,7 @@
         };
 
         removeItem = (todo) => {
-          this.props.store.dispatch(REMOVE_TODO_ACTION(todo.id));
-          return API.deleteTodo(todo.id)
-            .catch(() => {
-              this.props.store.dispatch(ADD_TODO_ACTION(todo));
-              alert('An error occurred. Try again.')
-            })
+          this.props.store.dispatch(handleDeleteTodo(todo));
         };
 
         toggelItem = (id) => {
@@ -259,11 +271,10 @@
 
         removeItem = (goal) => {
           this.props.store.dispatch(REMOVE_GOAL_ACTION(goal.id));
-          return API.deleteTodo(goal.id)
-            .catch(() => {
-              this.props.store.dispatch(ADD_GOAL_ACTION(goal))
-              alert('An error occurred. Try again.')
-            })
+          return API.deleteTodo(goal.id).catch(() => {
+            this.props.store.dispatch(ADD_GOAL_ACTION(goal));
+            alert("An error occurred. Try again.");
+          });
         };
 
         render() {
@@ -302,7 +313,7 @@
           const { todos, goals, loading } = store.getState();
 
           if (loading === true) {
-            return <h3>Loading...</h3>
+            return <h3>Loading...</h3>;
           }
 
           return (
