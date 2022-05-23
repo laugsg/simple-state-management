@@ -29,8 +29,11 @@
       }
 
       /** APP Code
-       * User defined behaviour
-       */
+      * User defined behaviour
+      */
+      
+      //#region Vars
+      
       const ADD_TODO = "ADD_TODO";
       const REMOVE_TODO = "REMOVE_TODO";
       const TOGGLE_TODO = "TOGGLE_TODO";
@@ -38,6 +41,10 @@
       const REMOVE_GOAL = "REMOVE_GOAL";
       const TOGGLE_GOAL = "TOGGLE_GOAL";
       const RECEIVE_DATA = "RECEIVE_DATA";
+
+      //#endregion
+
+      //#region Reducers
 
       function ADD_TODO_ACTION(todo) {
         return {
@@ -83,9 +90,9 @@
         };
       }
 
-      /** Action Creators
-       * 
-       */
+      //#endregion
+
+      //#region Action Creators
 
       function handleDeleteTodo(todo) {
         return (dispatch) => {
@@ -119,6 +126,20 @@
           });
         };
       }
+
+      function handleInitialData(){
+        return (dispatch) => {
+          return Promise.all([API.fetchTodos(), API.fetchGoals()]).then(
+            ([todos, goals]) => {
+            dispatch(RECEIVE_DATA_ACTION(todos, goals));
+            }
+          );
+        }
+      }
+
+      //#endregion
+
+      //#region Reducers
 
       // 4. update the state
       function todos(state = [], action) {
@@ -183,7 +204,6 @@
 
         return next(action);
       };
-
       const logger = (store) => (next) => (action) => {
         console.group(action.type);
         console.log("The action:", action);
@@ -206,9 +226,14 @@
       store.subscribe(() => {
         console.log("The new state is:", store.getState());
       });
+    
+      //#endregion
+    
     </script>
 
     <script type="text/babel">
+
+      //#region List component
       function List(props) {
         return (
           <ul>
@@ -229,7 +254,9 @@
           </ul>
         );
       }
+      //#endregion
 
+      //#region Todo component
       class Todos extends React.Component {
         addItem = (e) => {
           console.log("click");
@@ -275,19 +302,20 @@
           );
         }
       }
+      //#endregion
 
+      //#region Goal component
       class Goals extends React.Component {
         addItem = (e) => {
           e.preventDefault();
-
-          this.props.store.dispatch(handleAddGoal(
+          this.props.dispatch(handleAddGoal(
             this.input.value,
             () => this.input.value = ""
           ))
         };
 
         removeItem = (goal) => {
-          this.props.store.dispatch(handleDeleteGoal(goal));
+          this.props.dispatch(handleDeleteGoal(goal));
         };
 
         render() {
@@ -308,22 +336,20 @@
           );
         }
       }
+      //#endregion
 
+      //#region App component
       class App extends React.Component {
         componentDidMount() {
           const { store } = this.props;
           store.subscribe(() => this.forceUpdate()); // this is an "Anti-pattern" in reality, used just for learning purposes.
 
-          Promise.all([API.fetchTodos(), API.fetchGoals()]).then(
-            ([todos, goals]) => {
-              store.dispatch(RECEIVE_DATA_ACTION(todos, goals));
-            }
-          );
+          store.dispatch(handleInitialData());
         }
 
         render() {
           const { store } = this.props;
-          const { todos, goals, loading } = store.getState();
+          const { todos, loading } = store.getState();
 
           if (loading === true) {
             return <h3>Loading...</h3>;
@@ -332,13 +358,57 @@
           return (
             <div>
               <Todos todos={todos} store={this.props.store} />
-              <Goals goals={goals} store={this.props.store} />
+              <ConnectedGoals />
             </div>
           );
         }
       }
+      //#endregion
 
-      ReactDOM.render(<App store={store} />, document.getElementById("app"));
+      //#region Context
+      const Context = React.createContext();
+      class Provider extends React.Component {
+        render() {
+          return (
+            <Context.Provider value={this.props.store}>
+              {this.props.children}
+            </Context.Provider>
+          )
+        }
+      }
+
+      class ConnectedApp extends React.Component {
+        render() {
+          return (
+            <Context.Consumer>
+              {(store) => (
+                <App store={store} />
+              )}
+            </Context.Consumer>
+          )
+        }
+      }
+
+      class ConnectedGoals extends React.Component {
+        render(){
+          return (
+            <Context.Consumer>
+              {(store) => {
+                const {goals} = store.getState()
+                return <Goals goals={goals} dispatch={store.dispatch} />
+              }}
+            </Context.Consumer>
+          )
+        }
+      }
+      //#endregion
+      
+      ReactDOM.render(
+        <Provider store={store}>
+          <ConnectedApp />
+        </Provider>, 
+        document.getElementById("app")
+      );
     </script>
   </body>
 </html>
