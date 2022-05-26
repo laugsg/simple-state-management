@@ -265,6 +265,7 @@
           this.input.value = "";
 
           this.props.store.dispatch(
+          // this.props.dispatch(
             ADD_TODO_ACTION({
               name,
               id: generateId(),
@@ -274,10 +275,12 @@
 
         removeItem = (todo) => {
           this.props.store.dispatch(handleDeleteTodo(todo));
+          // this.props.dispatch(handleDeleteTodo(todo));
         };
 
         toggelItem = (id) => {
           this.props.store.dispatch(TOGGLE_TODO_ACTION(id));
+          // this.props.dispatch(TOGGLE_TODO_ACTION(id));
         };
 
         render() {
@@ -302,6 +305,7 @@
           );
         }
       }
+
       //#endregion
 
       //#region Goal component
@@ -341,23 +345,24 @@
       //#region App component
       class App extends React.Component {
         componentDidMount() {
-          const { store } = this.props;
-          store.subscribe(() => this.forceUpdate()); // this is an "Anti-pattern" in reality, used just for learning purposes.
+          // const { dispatch } = this.props.store;
+          this.props.store.subscribe(() => this.forceUpdate()); // this is an "Anti-pattern" in reality, used just for learning purposes.
 
-          store.dispatch(handleInitialData());
+          this.props.store.dispatch(handleInitialData());
         }
 
         render() {
           const { store } = this.props;
-          const { todos, loading } = store.getState();
+          const { todos } = store.getState();
 
-          if (loading === true) {
+          if (this.props.loading === true) {
             return <h3>Loading...</h3>;
           }
 
           return (
             <div>
-              <Todos todos={todos} store={this.props.store} />
+              {/*<Todos todos={todos} store={this.props.store} />*/}
+              <ConnectedTodos />
               <ConnectedGoals />
             </div>
           );
@@ -365,7 +370,7 @@
       }
       //#endregion
 
-      //#region Context
+      //#region Context      
       const Context = React.createContext();
       class Provider extends React.Component {
         render() {
@@ -377,6 +382,7 @@
         }
       }
 
+      // delete: -2:48
       class ConnectedApp extends React.Component {
         render() {
           return (
@@ -389,6 +395,26 @@
         }
       }
 
+      // const ConnectedApp = connect((store) => ({
+      //   loading:store.loading
+      // }))(App)
+      
+      class ConnectedTodos extends React.Component {
+        render() {
+          return (
+            <Context.Consumer>
+              {(store) => {
+                const { todos } = store.getState();
+                return <Todos todos={todos} store={store} />;
+              }}
+            </Context.Consumer>
+          );
+        }
+      }
+            
+      // const ConnectedTodos = connect()()
+
+      // delete: -1:14
       class ConnectedGoals extends React.Component {
         render(){
           return (
@@ -401,6 +427,10 @@
           )
         }
       }
+
+      // const ConnectedGoals = connect((store) => ({
+      //   goals: store.goals
+      // }))(Goals)
       //#endregion
       
       ReactDOM.render(
