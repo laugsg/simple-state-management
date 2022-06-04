@@ -264,8 +264,7 @@
           const name = this.input.value;
           this.input.value = "";
 
-          this.props.store.dispatch(
-          // this.props.dispatch(
+          this.props.dispatch(
             ADD_TODO_ACTION({
               name,
               id: generateId(),
@@ -274,13 +273,11 @@
         };
 
         removeItem = (todo) => {
-          this.props.store.dispatch(handleDeleteTodo(todo));
-          // this.props.dispatch(handleDeleteTodo(todo));
+          this.props.dispatch(handleDeleteTodo(todo));
         };
 
         toggelItem = (id) => {
-          this.props.store.dispatch(TOGGLE_TODO_ACTION(id));
-          // this.props.dispatch(TOGGLE_TODO_ACTION(id));
+          this.props.dispatch(TOGGLE_TODO_ACTION(id));
         };
 
         render() {
@@ -353,9 +350,9 @@
 
         render() {
           const { store } = this.props;
-          const { todos } = store.getState();
+          const { loading } = store.getState();
 
-          if (this.props.loading === true) {
+          if (loading === true) {
             return <h3>Loading...</h3>;
           }
 
@@ -405,14 +402,16 @@
             <Context.Consumer>
               {(store) => {
                 const { todos } = store.getState();
-                return <Todos todos={todos} store={store} />;
+                return <Todos todos={todos} dispatch={store.dispatch} />;
               }}
             </Context.Consumer>
           );
         }
       }
             
-      // const ConnectedTodos = connect()()
+      // const ConnectedTodos = connect((store) => ({
+      //   todos: store.todos
+      // }))(Todos)
 
       // delete: -1:14
       class ConnectedGoals extends React.Component {
